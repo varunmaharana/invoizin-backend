@@ -47,6 +47,11 @@ const companySchema = new Schema<ICompany>({
     logo: {
         type: String,
     },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
 }, { timestamps: true });
 
 companySchema.pre("save", async function (next: mongoose.CallbackWithoutResultAndOptionalError) {

@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export interface ICompany {
     name: string;
     email: string;
@@ -10,6 +12,7 @@ export interface ICompany {
     country?: string;
     website?: string;
     logo?: string;
+    owner: Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
 }
