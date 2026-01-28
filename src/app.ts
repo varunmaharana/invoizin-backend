@@ -1,16 +1,17 @@
 import express from "express";
 import cors from "cors";
 import authRouter from "./routes/auth.route";
+import { errorHandler } from "./middlewares/errorHandler.middleware";
 
 const app = express();
 
 // Error handlers to catch unhandled issues
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
+process.on("uncaughtException", (err) => {
+	console.error("Uncaught Exception:", err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+	console.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
 
 app.use(express.json());
@@ -27,4 +28,6 @@ app.get("/", (req, res) => {
 	res.send("Hello World");
 });
 
-export default app; 
+app.use(errorHandler);
+
+export default app;

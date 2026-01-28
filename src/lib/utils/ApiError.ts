@@ -1,30 +1,44 @@
-class ApiError extends Error {
-    statusCode: number;
-    payload: any;
-    message: string;
-    success: boolean;
-    errors: any[];
+import { Response } from "express";
 
-    constructor(
-        statusCode: number,
-        message: string = "Something went wrong!",
-        errors: any[] = [],
-        payload: any = null,
-        stack: string = ""
-    ) {
-        super(message);
-        this.statusCode = statusCode;
-        this.payload = payload;
-        this.message = message;
-        this.success = false;
-        this.errors = errors;
-
-        if (stack) {
-            this.stack = stack;
-        } else {
-            Error.captureStackTrace(this, this.constructor);
-        }
-    }
+export enum ErrorType {
+	BAD_REQUEST = "BadRequest",
+	NOT_FOUND = "NotFound",
+	UNAUTHORIZED = "Unauthorized",
+	FORBIDDEN = "Forbidden",
+	INTERNAL = "Internal",
+	TOKEN_EXPIRED = "TokenExpired",
+	BAD_TOKEN = "BadToken",
+	ACCESS_TOKEN_ERROR = "AccessTokenError",
 }
 
-export { ApiError };
+export class ApiError extends Error {
+	type: ErrorType;
+	statusCode: number;
+	success: boolean;
+
+	constructor(
+		type: ErrorType,
+		statusCode: number,
+		message: string,
+		success: boolean = false,
+	) {
+		super(message);
+		this.type = type;
+		this.statusCode = statusCode;
+		this.success = success;
+
+		Object.setPrototypeOf(this, new.target.prototype);
+		Error.captureStackTrace(this, this.constructor);
+	}
+
+	static handle(err: ApiError, res: Response) {
+		res.status(err.statusCode || 500).json({
+            type: err.type || ErrorType.INTERNAL,
+			message: err.message || "Internal Server Error",
+			success: err.success,
+			...(process.env.NODE_ENV === "development" && {
+				stack: err.stack,
+			}),
+		});
+	}
+}
